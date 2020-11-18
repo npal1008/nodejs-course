@@ -8,13 +8,22 @@ app.use((req: Request, res: Response, next) => {
     console.log(req.headers);
     let userAgent = req.headers["user-agent"];
     if (userAgent?.startsWith('Postman')) {
+        res.locals.isUsingPostman = true;
+    } else {
+        res.locals.isUsingPostman = false;
+    }
+    next();
+});
+
+app.use((req: Request, res: Response, next) => {
+    console.log(res.locals.isUsingPostman);
+    if(res.locals.isUsingPostman == true) {
         res.status(500);
         res.end();
     } else {
         next();
     }
 });
-
 app.get('/html', (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/html');
     let file = readFileSync('./test.html', 'utf-8');
