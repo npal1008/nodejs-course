@@ -1,31 +1,14 @@
 import * as http from 'http';
 import * as fs from 'fs';
 
-/*let options = {
-    host: 'www.google.it',
-    port: 80,
-    method: 'POST',
-    path: '/'
-};
+function notFound(res: http.ServerResponse) {
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'text/html');
+    let html404Page = fs.readFileSync('./404.html');
+    res.write(html404Page);
+}
 
-let request = http.request(options, (response) => {
-    let body = '';
-    response.on('data', (chunk) => {
-        body += chunk;
-    });
-    response.on('end', () => {
-        console.log('Status Code: ' + response.statusCode);
-        console.log(response.headers);
-        console.log(body);
-    });
-});
-request.end();*/
-
-let server = http.createServer((req, res) => {
-    /*console.log('Incoming request');
-    console.log(req.method);
-    console.log(req.headers);
-    console.log(req.url);*/
+export let server = http.createServer((req, res) => {
     let calledURL = req.url;
     let body = '';
     req.on('data', (chunk) => {
@@ -45,25 +28,34 @@ let server = http.createServer((req, res) => {
                     res.setHeader('Content-Type', 'image/jpeg');
                     res.write(fs.readFileSync('./img.jpg'));
                     break;
+                case '/download':
+                    try {
+                        let fileContent = fs.readFileSync('./uploaded.txt', 'utf-8');
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'text/plain');
+                        res.write(fileContent);
+                    } catch (error) {
+                        if(error.errno == -4058) {
+                            notFound(res);
+                        } else {
+                            res.statusCode = 500;
+                            res.setHeader('Content-Type', 'text/plain');
+                            res.write('Internal Server Error');
+                        }
+                    }
+                    break;
                 default:
-                    res.statusCode = 404;
-                    res.setHeader('Content-Type', 'text/html');
-                    let html404Page = fs.readFileSync('./404.html');
-                    res.write(html404Page);
+                    notFound(res);
                     break;
             }
         } else if (req.method == 'POST') {
             switch (calledURL) {
                 case '/upload':
-                    console.log('BODY: ' + body);
                     fs.appendFileSync('./uploaded.txt', body);
                     res.statusCode = 201;
                     break;
                 default:
-                    res.statusCode = 404;
-                    res.setHeader('Content-Type', 'text/html');
-                    let html404Page = fs.readFileSync('./404.html');
-                    res.write(html404Page);
+                    notFound(res);
                     break;
             }
         } else {
@@ -73,8 +65,4 @@ let server = http.createServer((req, res) => {
         }
         res.end();
     });
-});
-
-server.listen(2000, () => {
-    console.log('Server started');
 });
