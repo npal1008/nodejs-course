@@ -1,3 +1,8 @@
 1 Gruppo1
 2 Gruppo2
 3 Gruppo3
+4 GroupJSON
+5 GroupJSON2
+6 GroupJSON3
+7 GroupJSON4
+8 GroupJSON5

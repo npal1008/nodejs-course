@@ -1,0 +1,10 @@
+{
+    "key1": ["string1", "string2"],
+    "key2": [true, false],
+    "key3": [12, 85.6],
+    "key4": [true, 52],
+    "subObject": {
+        "subkey1": "string",
+        "subjey2": 85
+    }
+}
